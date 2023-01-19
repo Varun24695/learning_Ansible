@@ -1,0 +1,45 @@
+---
+# Tasks file for kubeadm role
+
+- name: Install apt-transport-https
+  apt:
+    name: "apt-transport-https"
+    state: "latest"
+    update-cache: true
+  tags:
+    - kubernetes
+
+- name: "Install Kubernetes APT Key"
+  apt_key:
+    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    state: "present"
+  tags:
+    - kubernetes
+
+- name: "Add Kubernetes repository for Ubuntu Xenial"
+  apt_repository:
+    repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+    state: "present"
+    update_cache: true
+  tags:
+    - kubernetes
+
+- name: "Install packages for Docker and Kubernetes"
+  apt:
+    name: "{{ item }}"
+    state: "present"
+  with_items:
+    - "docker.io"
+    - "kubectl"
+    - "kubelet"
+    - "kubeadm"
+  tags:
+    - kubernetes
+
+- name: Ensure Kubernetes-related directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/kubernetes
+    - /etc/kubernetes/audit
